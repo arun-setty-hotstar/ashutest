@@ -1,0 +1,51 @@
+format_version: 3
+pipelines:
+  hello-hotstar-boilerplate-pipeline:
+    group: AdTech
+    materials:
+      mygit:
+        git: git@github.com:hotstar/hello-hotstar-boilerplate.git
+        branch: main
+    environment_variables:
+      DOCKER_REGISTRY: 084690408984.dkr.ecr.us-east-1.amazonaws.com
+      IMAGE_NAME: hello-hotstar-boilerplate
+    stages:
+    - build:
+        clean_workspace: true
+        jobs:
+          build:
+            elastic_profile_id: prod-java-8
+            artifacts:
+            - build:
+                source: image_ref
+            tasks:
+            - exec:
+                command: bash
+                arguments:
+                - "-c"
+                - "mvn clean package"
+            - exec:
+                command: bash
+                arguments:
+                - "-c"
+                - "mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec > version.txt"
+            - exec:
+                command: bash
+                arguments:
+                - "-c"
+                - "echo ${DOCKER_REGISTRY}/${IMAGE_NAME}:v`git rev-list HEAD --count`.0 > image_ref"
+            - exec:
+                command: bash
+                arguments:
+                - "-c"
+                - "eval $(aws ecr get-login --registry-ids 084690408984 --no-include-email --region us-east-1) && docker build --build-arg version=`cat version.txt` -t `cat image_ref` ."
+            - exec:
+                command: bash
+                arguments:
+                - "-c"
+                - "docker push `cat image_ref`"
+            - exec:
+                command: bash
+                arguments:
+                - "-c"
+                - "cat image_ref"
