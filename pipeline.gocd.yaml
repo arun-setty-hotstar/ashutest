@@ -1,14 +1,14 @@
 format_version: 3
 pipelines:
-  hello-hotstar-boilerplate-pipeline:
-    group: AdTech
+  <data.team>-<data.service>-pipeline:
+    group: <data.team>
     materials:
       mygit:
-        git: git@github.com:hotstar/hello-hotstar-boilerplate.git
+        git: git@github.com:hotstar/<data.repoName>.git
         branch: main
     environment_variables:
       DOCKER_REGISTRY: 084690408984.dkr.ecr.us-east-1.amazonaws.com
-      IMAGE_NAME: hello-hotstar-boilerplate
+      IMAGE_NAME: <data.team>-<data.service>
     stages:
     - build:
         clean_workspace: true
